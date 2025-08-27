@@ -7,15 +7,19 @@
     </header>
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="space-y-6">
-        <TodoList />
-        <NotesSection />
-      </div>
+      <nav class="mb-6 flex gap-4 text-blue-600">
+        <RouterLink to="/" class="hover:underline">Home</RouterLink>
+        <RouterLink to="/todos" class="hover:underline">Todos</RouterLink>
+        <RouterLink to="/notes" class="hover:underline">Notes</RouterLink>
+        <RouterLink to="/profile" class="hover:underline"
+          >My Profile</RouterLink
+        >
+      </nav>
+      <RouterView />
     </main>
   </div>
 </template>
 
 <script setup>
-import TodoList from "./TodoList.vue";
-import NotesSection from "./NotesSection.vue";
+import { RouterLink, RouterView } from "vue-router";
 </script>

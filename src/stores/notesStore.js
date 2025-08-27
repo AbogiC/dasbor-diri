@@ -1,27 +1,51 @@
 import { defineStore } from "pinia";
+import { db } from "../firebase";
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
 
 export const useNotesStore = defineStore("notes", {
   state: () => ({
-    notes: JSON.parse(localStorage.getItem("notes")) || [],
+    notes: [],
+    _unsubscribe: null,
   }),
   actions: {
-    addNote(note) {
-      this.notes.push(note);
-      this.saveToLocalStorage();
+    subscribe() {
+      if (this._unsubscribe) return;
+      const notesQuery = query(
+        collection(db, "notes"),
+        orderBy("createdAt", "desc")
+      );
+      this._unsubscribe = onSnapshot(notesQuery, (snapshot) => {
+        this.notes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      });
     },
-    deleteNote(id) {
-      this.notes = this.notes.filter((note) => note.id !== id);
-      this.saveToLocalStorage();
-    },
-    updateNote(id, updatedContent) {
-      const note = this.notes.find((note) => note.id === id);
-      if (note) {
-        note.content = updatedContent;
-        this.saveToLocalStorage();
+    unsubscribe() {
+      if (this._unsubscribe) {
+        this._unsubscribe();
+        this._unsubscribe = null;
       }
     },
-    saveToLocalStorage() {
-      localStorage.setItem("notes", JSON.stringify(this.notes));
+    async addNote(note) {
+      await addDoc(collection(db, "notes"), {
+        content: note.content ?? "",
+        createdAt: Date.now(),
+      });
+    },
+    async deleteNote(id) {
+      await deleteDoc(doc(db, "notes", String(id)));
+    },
+    async updateNote(id, updatedContent) {
+      await updateDoc(doc(db, "notes", String(id)), {
+        content: updatedContent,
+      });
     },
   },
 });

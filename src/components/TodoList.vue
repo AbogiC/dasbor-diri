@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useTodoStore } from "../stores/todoStore";
 import TodoItem from "./TodoItem.vue";
 
@@ -42,7 +42,6 @@ const newTodo = ref("");
 const addTodo = () => {
   if (newTodo.value.trim()) {
     todoStore.addTodo({
-      id: Date.now(),
       text: newTodo.value.trim(),
       completed: false,
     });
@@ -61,4 +60,12 @@ const deleteTodo = (id) => {
 const updateTodo = (id, text) => {
   todoStore.updateTodo(id, text);
 };
+
+onMounted(() => {
+  todoStore.subscribe();
+});
+
+onBeforeUnmount(() => {
+  todoStore.unsubscribe();
+});
 </script>

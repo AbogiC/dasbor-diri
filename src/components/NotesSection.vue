@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted, onBeforeUnmount } from "vue";
 import { useNotesStore } from "../stores/notesStore";
 import { TrashIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
@@ -44,7 +44,6 @@ const notes = computed(() => notesStore.notes);
 
 const addNewNote = () => {
   notesStore.addNote({
-    id: Date.now(),
     content: "",
   });
 };
@@ -56,4 +55,12 @@ const updateNote = (id, content) => {
 const deleteNote = (id) => {
   notesStore.deleteNote(id);
 };
+
+onMounted(() => {
+  notesStore.subscribe();
+});
+
+onBeforeUnmount(() => {
+  notesStore.unsubscribe();
+});
 </script>
